@@ -19,10 +19,10 @@ const passport = require("passport");
 const app = express();
 
 app.use(
-    cors({
-      origin: ["http://localhost:3000", "https://accounts.google.com","https://pixel-main.netlify.app/"], // Allow Google OAuth
+    cors(/* {
+      origin: ["http://localhost:3000", "https://accounts.google.com","https://pixel-main.netlify.app"], // Allow Google OAuth
       credentials: true, 
-    })
+    } */)
 );
 
 
