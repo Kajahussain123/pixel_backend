@@ -12,6 +12,7 @@ const adminAuthRoutes=require('./Routes/Admin/AuthRoutes')
 const pixelRoutes=require('./Routes/Admin/PixelRoutes')
 const userOrderRoutes=require('./Routes/User/OrdersRoutes')
 const userNotificationRoutes=require('./Routes/User/NotificationRoutes')
+const adminBuyRoutes=require('./Routes/Admin/CheckoutRoutes')
 const session = require("express-session");
 const passport = require("passport");
 
@@ -57,6 +58,7 @@ app.use('/api/admin/users',userRoutes)
 app.use('/api/admin/notification',notificationRoutes)
 app.use('/api/admin/auth',adminAuthRoutes)
 app.use('/api/admin/pixel',pixelRoutes)
+app.use('/api/admin/buy',adminBuyRoutes)
 
 // Static File Serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

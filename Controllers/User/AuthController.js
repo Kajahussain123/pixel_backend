@@ -75,12 +75,28 @@ const verifyOTP = async (req, res) => {
     user.otpExpires = null;
     await user.save();
 
-    res.json({ message: "Email verified successfully. You can now log in." });
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: "user",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Email verified successfully. You can now log in.",
+      token,
+      user: { id: user._id, name: user.name, email: user.email },
+    });
   } catch (error) {
     console.error("OTP Verification Error:", error); // Log error for debugging
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
 
 
 const loginUser = async (req, res) => {

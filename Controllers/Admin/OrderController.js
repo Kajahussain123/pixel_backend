@@ -1,4 +1,6 @@
 const Order = require('../../Models/User/CartModel');
+const path = require("path");
+const ExcelJS = require("exceljs");
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -144,3 +146,75 @@ exports.getTotalOrdersCount = async (req, res) => {
     }
   };
   
+
+  exports.exportOrdersToExcel = async (req, res) => {
+    try {
+      const orders = await Order.find().populate("userId", "name email phone");
+  
+      if (!orders || orders.length === 0) {
+        return res.status(404).json({ message: "No orders found" });
+      }
+  
+      // Create a new workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Orders");
+  
+      // Define columns
+      worksheet.columns = [
+        { header: "Order ID", key: "_id", width: 30 },
+        { header: "User Name", key: "userName", width: 20 },
+        { header: "User Email", key: "userEmail", width: 25 },
+        { header: "Order Name", key: "name", width: 20 },
+        { header: "Email", key: "email", width: 25 },
+        { header: "Phone", key: "phone", width: 15 },
+        { header: "Country", key: "country", width: 10 },
+        { header: "No of Pixels", key: "noOfPixels", width: 15 },
+        { header: "Total Price", key: "totalPrice", width: 15 },
+        { header: "Company Name", key: "companyName", width: 20 },
+        { header: "Payment Method", key: "paymentMethod", width: 20 },
+        { header: "Payment Status", key: "paymentStatus", width: 15 },
+        { header: "Created At", key: "createdAt", width: 25 },
+        { header: "Updated At", key: "updatedAt", width: 25 },
+        { header: "File URLs", key: "fileUrls", width: 50 }
+      ];
+  
+      // Populate data
+      orders.forEach((order) => {
+        worksheet.addRow({
+          _id: order._id.toString(),
+          userName: order.userId?.name || "N/A",
+          userEmail: order.userId?.email || "N/A",
+          name: order.name,
+          email: order.email,
+          phone: order.phone,
+          country: order.country,
+          noOfPixels: order.noOfPixels,
+          totalPrice: order.totalPrice,
+          companyName: order.companyName,
+          paymentMethod: order.paymentMethod,
+          paymentStatus: order.paymentStatus,
+          createdAt: new Date(order.createdAt).toLocaleString(),
+          updatedAt: new Date(order.updatedAt).toLocaleString(),
+          fileUrls: order.file ? order.file.join(", ") : "No Files",
+        });
+      });
+  
+      // Set file path
+      const filePath = path.join("C:\\Users\\user\\Desktop\\Codeedex Projects\\Pixel\\Backend\\exports", "Orders.xlsx");
+
+  
+      // Save the workbook to a file
+      await workbook.xlsx.writeFile(filePath);
+  
+      // Send file as response
+      res.download(filePath, "Orders.xlsx", (err) => {
+        if (err) {
+          console.error("File download error:", err);
+          res.status(500).json({ message: "Error downloading file" });
+        }
+      });
+  
+    } catch (error) {
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };
