@@ -21,7 +21,7 @@ router.get(
     async (req, res) => {
       try {
         if (!req.user) {
-          return res.redirect("https://pixel-main.netlify.app/login?error=user_not_found");
+          return res.redirect("https://plantmyad.com/login?error=user_not_found");
         }
   
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
@@ -29,10 +29,10 @@ router.get(
         });
   
         // Redirect to frontend with token and user ID
-        res.redirect(`https://pixel-main.netlify.app/?token=${token}&userId=${req.user._id}`);
+        res.redirect(`https://plantmyad.com/?token=${token}&userId=${req.user._id}`);
       } catch (err) {
         console.error("Google Auth Error:", err);
-        res.redirect("https://pixel-main.netlify.app/login?error=auth_failed");
+        res.redirect("https://plantmyad.com/login?error=auth_failed");
       }
     }
   );

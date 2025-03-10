@@ -12,10 +12,14 @@ const CartItemSchema = new mongoose.Schema({
   file: { type: [String], default: [] },  
   organicLead: { type: String },
   message: { type: String },
-  isAdminOrder: { type: Boolean, default: false }, // ✅ New field
-  paymentReceived: { type: Boolean, default: false }, // ✅ New field for admin
-  paymentMethod: { type: String, enum: ["Online Payment"], required: function() { return !this.isAdminOrder; } }, // ✅ Optional for admin
-  paymentStatus: { type: String, enum: ["pending", "completed", "failed"], default: "pending" }
+  isAdminOrder: { type: Boolean, default: false }, 
+  paymentReceived: { type: Boolean, default: false }, 
+  paymentMethod: { type: String, enum: ["Online Payment"], required: function() { return !this.isAdminOrder; } },
+  paymentStatus: { type: String, enum: ["pending", "completed", "failed"], default: "pending" },
+  currencyCode: { type: String, required: true }, 
+  currencySymbol: { type: String, required: true }, 
+  razorpayOrderId:{type:String},
+  razorpayPaymentId:{type:String},
 }, { timestamps: true });
 
 const CartItem = mongoose.model('CartItem', CartItemSchema);

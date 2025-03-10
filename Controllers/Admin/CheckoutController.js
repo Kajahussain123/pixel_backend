@@ -3,9 +3,15 @@ const CartItem = require("../../Models/User/CartModel");
 
 exports.adminOrder = async (req, res) => {
     try {
-        const { userId, name, email, phone, country, noOfPixels, companyName, organicLead, message, paymentReceived } = req.body;
+        const { 
+            userId, name, email, phone, country, noOfPixels, companyName, organicLead, message, paymentReceived, currencyCode, currencySymbol 
+        } = req.body;
 
         if (!userId) return res.status(400).json({ message: "User ID is required" });
+
+        if (!currencyCode || !currencySymbol) {
+            return res.status(400).json({ message: "Currency details are required" });
+        }
 
         const pixelCount = parseInt(noOfPixels);
         if (isNaN(pixelCount) || pixelCount <= 0) {
@@ -34,9 +40,11 @@ exports.adminOrder = async (req, res) => {
             file: filePaths,
             organicLead,
             message,
-            isAdminOrder: true,  
-            paymentReceived: paymentReceived || false, 
-            paymentStatus: paymentReceived ? "completed" : "pending"
+            isAdminOrder: true,
+            paymentReceived: paymentReceived || false,
+            paymentStatus: paymentReceived ? "completed" : "pending",
+            currencyCode,   // ✅ Ensure currency details are saved
+            currencySymbol  // ✅ Ensure currency details are saved
         });
 
         await order.save();
@@ -55,3 +63,4 @@ exports.adminOrder = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+

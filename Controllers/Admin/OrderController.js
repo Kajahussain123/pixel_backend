@@ -92,26 +92,24 @@ exports.getTotalOrdersCount = async (req, res) => {
       // Total orders count
       const totalOrders = await Order.countDocuments();
   
-      // Orders increment logic (Completed vs Remaining)
-      const completedOrders = await Order.countDocuments({ status: "Delivered" });
+      // ✅ Count orders with completed payment
+      const completedOrders = await Order.countDocuments({ paymentStatus: "completed" });
+  
       const remainingOrders = totalOrders - completedOrders;
   
-      // Revenue data grouped by month
+      // ✅ Aggregate revenue correctly
       const revenueData = await Order.aggregate([
         {
           $group: {
             _id: { $month: "$createdAt" }, // Group by month
-            revenue: { $sum: "$totalAmount" },
+            revenue: { $sum: "$totalPrice" }, // Sum totalPrice for each month
           },
         },
         { $sort: { _id: 1 } },
       ]);
   
       // Convert months from numbers to labels
-      const monthNames = [
-        "jan", "feb", "mar", "apr", "may", "jun",
-        "jul", "aug", "sep", "oct", "nov", "dec",
-      ];
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const formattedRevenueData = revenueData.map((entry) => ({
         month: monthNames[entry._id - 1],
         revenue: entry.revenue,
@@ -129,6 +127,8 @@ exports.getTotalOrdersCount = async (req, res) => {
       res.status(500).json({ message: "Server error", error: error.message });
     }
   };
+  
+
 
   exports.getOrdersByUserId = async (req, res) => {
     try {

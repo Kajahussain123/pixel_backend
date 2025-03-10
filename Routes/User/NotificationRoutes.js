@@ -6,5 +6,6 @@ const jwtVerify = require('../../Middlewares/jwtMiddleware')
 
 router.get('/view/:userId', jwtVerify(['user']),notificationController.getUserNotifications); // Get all notifications for a user
 router.delete('/delete/:notificationId',jwtVerify(['user']), notificationController.deleteNotification); // Delete a notification
+router.put('/read/:notificationId',jwtVerify(['user']), notificationController.markNotificationAsRead); // Delete a notification
 
 module.exports = router;
