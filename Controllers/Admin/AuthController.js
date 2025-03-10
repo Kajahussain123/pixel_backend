@@ -23,7 +23,7 @@ const registerAdmin = async (req, res) => {
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     // Check if user exists
     const admin = await Admin.findOne({ email });
     if (!admin) return res.status(400).json({ message: "Invalid credentials" });
@@ -33,15 +33,24 @@ const loginAdmin = async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     // Generate JWT
- const token = jwt.sign(
+    //  const token = jwt.sign(
+    //       {
+    //         id: admin._id,
+    //         email: admin.email,
+    //         role: 'admin'  
+    //       },
+    //       process.env.JWT_SECRET,
+    //       { expiresIn: "7d" }
+    //     );
+    const token = jwt.sign(
       {
         id: admin._id,
         email: admin.email,
-        role: 'admin'  
+        role: 'admin'
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      process.env.JWT_SECRET // ❌ No expiresIn
     );
+
     res.json({ token, admin: { id: admin._id, name: admin.name, email: admin.email } });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });

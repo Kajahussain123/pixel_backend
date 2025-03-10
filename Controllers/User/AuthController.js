@@ -83,7 +83,7 @@ const verifyOTP = async (req, res) => {
         role: "user",
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      // { expiresIn: "7d" }
     );
 
     res.json({
