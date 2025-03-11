@@ -24,8 +24,8 @@ router.get(
           return res.redirect("https://plantmyad.com/login?error=user_not_found");
         }
   
-        const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
+        const token = jwt.sign({ id: req.user._id ,role: req.user.role || "user",}, process.env.JWT_SECRET, {
+          // expiresIn: "1h",
         });
   
         // Redirect to frontend with token and user ID
