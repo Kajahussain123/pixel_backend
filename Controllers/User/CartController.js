@@ -88,7 +88,7 @@ exports.buyNow = async (req, res) => {
         const exchangeRateAPI = "https://api.exchangerate-api.com/v4/latest/USD";
 
         // Convert USD to local currency if it's not USD
-        if (currencyCode !== "INR") {
+        if (currencyCode !== "USD") {
             try {
                 const response = await axios.get(exchangeRateAPI);
                 const exchangeRate = response.data.rates[currencyCode];
