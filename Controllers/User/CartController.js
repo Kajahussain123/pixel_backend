@@ -141,6 +141,7 @@ exports.verifyPayment = async (req, res) => {
             razorpay_order_id, 
             razorpay_payment_id, 
             userId, 
+            name,
             noOfPixels, 
             companyName, 
             email, 
@@ -171,7 +172,7 @@ exports.verifyPayment = async (req, res) => {
         if (!cartItem) {
             cartItem = new CartItem({
                 userId,
-                name: companyName,
+                name: name,
                 email,
                 phone,
                 country,
