@@ -2,12 +2,16 @@ const User = require('../../Models/User/AuthModel');
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // Exclude password field for security
+    const users = await User.find()
+      .select('-password') // Exclude password field for security
+      .sort({ createdAt: -1 }); // Sort users by creation date (latest first)
+
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.getUserById = async (req, res) => {
   try {

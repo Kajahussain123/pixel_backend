@@ -4,12 +4,16 @@ const ExcelJS = require("exceljs");
 
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('userId', 'name email phone'); // Fetch orders with user details
+    const orders = await Order.find()
+      .populate('userId', 'name email phone')
+      .sort({ createdAt: -1 }); // Sorting in descending order (latest first)
+
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.getOrderById = async (req, res) => {
   try {
