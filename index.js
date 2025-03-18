@@ -29,7 +29,8 @@ app.use(
 
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: "500mb" }));  // Adjust as needed
+app.use(express.urlencoded({ limit: "500mb", extended: true }));
 app.use(
     session({
       secret: process.env.SESSION_SECRET,
