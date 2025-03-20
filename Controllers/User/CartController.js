@@ -81,6 +81,15 @@ exports.buyNow = async (req, res) => {
             return res.status(400).json({ message: "Invalid pixel count" });
         }
 
+        const pixelData = await Pixel.findOne().sort({ _id: -1 });
+        if (!pixelData || pixelData.pixelCount <= 0) {
+            return res.status(400).json({ message: "No pixels available" });
+        }
+
+        if (pixelData.pixelCount < pixelCount) {
+            return res.status(400).json({ message: `Only ${pixelData.pixelCount} pixels available` });
+        }
+
         const pricePerPixelUSD = 1; // 1 pixel = 1 USD
         const totalPriceInUSD = pixelCount * pricePerPixelUSD; // Total cost in USD
 
