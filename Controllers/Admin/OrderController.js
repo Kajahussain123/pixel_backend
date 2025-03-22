@@ -55,17 +55,31 @@ exports.updateOrderStatus = async (req, res) => {
 exports.deleteOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findByIdAndDelete(orderId);
+
+    // Find the order before deleting
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    res.status(200).json({ message: 'Order deleted successfully' });
+    // Calculate the pixel count to be deducted
+    const pixelsToDeduct = order.cartItems.reduce((sum, item) => sum + (item.noOfPixels || 0), 0);
+
+    // Delete the order
+    await Order.findByIdAndDelete(orderId);
+
+    // Respond with success message and updated pixel count
+    res.status(200).json({ 
+      message: 'Order deleted successfully', 
+      pixelsDeducted: pixelsToDeduct 
+    });
+
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // Get Total Orders Count
 exports.getTotalOrdersCount = async (req, res) => {
