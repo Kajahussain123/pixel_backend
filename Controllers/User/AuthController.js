@@ -4,28 +4,70 @@ const jwt = require("jsonwebtoken");
 
 const nodemailer = require("nodemailer");
 
+// const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+//     const userExists = await User.findOne({ email });
+//     if (userExists) return res.status(400).json({ message: "User already exists" });
+
+//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+//     const user = new User({ name, email, password, otp, otpExpires });
+//     await user.save();
+
+//     // Send OTP email
+//     await sendOTPEmail(email, otp);
+
+//     res.status(201).json({ message: "OTP sent to email. Verify to activate account.", otp });
+//   } catch (error) {
+//     console.error("Registration Error:", error); // Log error for debugging
+//     res.status(500).json({ message: "Server Error", error: error.message });
+//   }
+// };
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+    let user = await User.findOne({ email });
 
+    if (user) {
+      if (user.isVerified) {
+        return res.status(400).json({ message: "User already exists" });
+      } else {
+        // Update OTP for existing unverified user
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+        user.otp = otp;
+        user.otpExpires = otpExpires;
+        user.password = password; // optional: update password if changed
+        await user.save();
+
+        await sendOTPEmail(email, otp);
+        return res.status(200).json({ message: "OTP resent to email. Please verify to continue.", otp });
+      }
+    }
+
+    // New user registration
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    const user = new User({ name, email, password, otp, otpExpires });
-    await user.save();
+    const newUser = new User({ name, email, password, otp, otpExpires });
+    await newUser.save();
 
-    // Send OTP email
     await sendOTPEmail(email, otp);
 
     res.status(201).json({ message: "OTP sent to email. Verify to activate account.", otp });
+
   } catch (error) {
-    console.error("Registration Error:", error); // Log error for debugging
+    console.error("Registration Error:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
 
 // Function to send OTP via email
 const sendOTPEmail = async (email, otp) => {
