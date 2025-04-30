@@ -1,6 +1,7 @@
 const Order = require('../../Models/User/CartModel');
 const path = require("path");
 const ExcelJS = require("exceljs");
+const Pixel = require("../../Models/Admin/PixelModel");
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -56,30 +57,40 @@ exports.deleteOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    // Find the order before deleting
+    // Find the order to delete
     const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Calculate the pixel count to be deducted
-    const pixelsToDeduct = order.cartItems.reduce((sum, item) => sum + (item.noOfPixels || 0), 0);
+    // Calculate pixels to restore
+    const pixelsToRestore = parseInt(order.noOfPixels) || 0;
 
     // Delete the order
     await Order.findByIdAndDelete(orderId);
 
-    // Respond with success message and updated pixel count
-    res.status(200).json({ 
-      message: 'Order deleted successfully', 
-      pixelsDeducted: pixelsToDeduct 
+    // Find the latest pixel entry
+    const pixelData = await Pixel.findOne().sort({ _id: -1 });
+
+    if (!pixelData) {
+      return res.status(500).json({ message: "Pixel data not found" });
+    }
+
+    // Add pixels back to available pool
+    pixelData.pixelCount += pixelsToRestore;
+    await pixelData.save();
+
+    res.status(200).json({
+      message: "Order deleted successfully, pixels restored",
+      pixelsRestored: pixelsToRestore,
+      updatedPixelCount: pixelData.pixelCount,
     });
 
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 // Get Total Orders Count
 exports.getTotalOrdersCount = async (req, res) => {
